@@ -15,8 +15,6 @@ if not defined style (
     )
 @echo use style=%style%
 
-exit /b
-
 @move %oname% %oname%.old.bak
 
 @rem https://tex.stackexchange.com/questions/588317/how-to-generate-a-bibliography-with-pandoc
