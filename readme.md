@@ -1,3 +1,4 @@
+# tex2docx via pandoc bib-gost-citeproc
 
 ## style 
 based on https://github.com/Darxor/CSL-GOST  +some uncompatible fixes
