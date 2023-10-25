@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # %% 
-CSL = r'D:\nemo\UTILS\__configCollection\TeX\GOST_R_7011_numeric1a.csl'
+CSL = r'%~dp0\__configCollection\TeX\GOST_R_7011_numeric1a.csl'
 # %% ------------------------- imports std lab set --------------------------- #
 from turtle import isvisible
 from typing import Dict,Optional,List,Sequence,Iterable,Any, Tuple, Union, cast,ClassVar,Callable
