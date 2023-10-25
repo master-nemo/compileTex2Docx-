@@ -4,7 +4,8 @@
 		<title>ГОСТ Р 7.0.11 [Номер] Алфавитная сортировка</title>
 		<title-short>ГОСТ Р 7.0.11 [№] А-z</title-short>
 		<author>
-			<name>Александр Севостьянов + fixed by N</name>
+			<name>Александр Севостьянов + fixed by N (see fixes list bellow)</name>
+		    <!-- (fixed multiple layout error +url show +disable sorting)  -->
 			<email>alvslex@gmail.com</email>
 		</author>
 		<updated>2017-03-17T00:51:47+03:00</updated>
@@ -14,7 +15,7 @@
 		<link href="http://chetvericov.ru/stil-oformleniya-dlya-mendeley-i-zotero-csl-po-gost-r-705-2008/" rel="template" xml:lang="ru"/>
 		<link href="https://raw.githubusercontent.com/Darxor/csl-gost-r-7.0.11/master/GOST_R_7011_numeric.csl" rel="self"/>
 		<id>https://raw.githubusercontent.com/Darxor/csl-gost-r-7.0.11/master/GOST_R_7011_numeric.csl</id>
-		<summary>(fixed multiple layout error (N) +url show ) Стиль CSL для создания библиографических ссылок согласно ГОСТ. Полная поддержка: Журнальных статей, материалов с конференций, книг, отчетов о НИР, диссертаций (авторефератов), электронных ресурсов (WEB)</summary>
+		<summary>(fixed multiple layout error +url show +disable sorting) Стиль CSL для создания библиографических ссылок согласно ГОСТ. Полная поддержка: Журнальных статей, материалов с конференций, книг, отчетов о НИР, диссертаций (авторефератов), электронных ресурсов (WEB)</summary>
 		<rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
 	</info>
 	<locale>
@@ -300,9 +301,12 @@
 		</group>
 	</macro>
 	<citation disambiguate-add-year-suffix="false" et-al-min="2" et-al-use-first="1">
-		<sort>
+	<!-- https://docs.citationstyles.org/en/stable/specification.html#sorting -->
+	<!-- cs:citation and cs:bibliography may include a cs:sort child element before the cs:layout element to specify the sorting order of respectively cites within citations, and bibliographic entries within the bibliography. In the absence of cs:sort, cites and bibliographic entries appear in the order in which they are cited. -->
+	<!-- so disable sorting for this csl -->
+		<!-- <sort>
 			<key variable="citation-number"/>
-		</sort>
+		</sort> -->
 		<layout delimiter=", " prefix="[" suffix="]">
 			<text variable="citation-number"/>
 			<group prefix=",">
@@ -312,10 +316,10 @@
 		</layout>
 	</citation>
 	<bibliography second-field-align="flush">
-		<sort>
+		<!-- <sort>
 			<key macro="author-cite"/>
 			<key variable="issued"/>
-		</sort>
+		</sort> -->
 		<layout suffix=".">
 			<text suffix=". " variable="citation-number"/>
 			<text macro="bibliography"/>

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # %% 
-CSL = r'%~dp0\__configCollection\TeX\GOST_R_7011_numeric1a.csl'
+# CSL = r'%~dp0\__configCollection\TeX\GOST_R_7011_numeric1a.csl'
+CSLrel = r'__configCollection\TeX\GOST_R_7011_numeric1a.csl'
 # %% ------------------------- imports std lab set --------------------------- #
 from turtle import isvisible
 from typing import Dict,Optional,List,Sequence,Iterable,Any, Tuple, Union, cast,ClassVar,Callable
@@ -78,20 +79,30 @@ if __name__ == "__main__":
     fndallbib=parseTex_find_bibs(s)
     bibsrcsstr=' '.join([ f' --bibliography={str(Path(a).absolute().relative_to(pr))}'  for a in fndallbib])
     # %%
-    odocx=args.docxNameTemplate%(str(s.absolute().relative_to(pr.absolute())))
+    odocx=args.docxNameTemplate%(str(s.absolute().relative_to(pr)))
     # %%
-    sbat1 = f'pandoc {str(s)} {bibsrcsstr} --citeproc '+\
-            f'--csl={CSL} -o {odocx}'+\
-            f'\nstart {odocx}' if not args.doNotStart_rez_docx else ''
-            # f' & start {odocx}' if not args.doNotStart_rez_docx else ''
-            # '--csl={CSL} -o doc1~out.docx & start doc1~out.docx'
-    print(sbat1)
+    Path(__file__).parent
+    # %%
+    csl=Path(__file__).parent.joinpath(CSLrel).absolute()
+    
+    csl.is_file()
+    # %%
+    Path()
+    # %%
+    CSLrel
+    # %%
+    sbat1 = f'pandoc {str(s.absolute().relative_to(pr))} {bibsrcsstr} --citeproc '+\
+            f'--csl="{str(csl)}" -o {odocx}'
+    print(sbat1)    #print only main convert string in case you want create oun bat by `>` of stdout
+    sbat1 +=f'\nstart {odocx}' if not args.doNotStart_rez_docx else ''
     # %%
     if (args.batNameTemplate!=''):
-        obatname=args.batNameTemplate%(str(s.absolute().relative_to(pr.absolute())))
-        obatp=pr.absolute().joinpath(obatname)
+        obatname=args.batNameTemplate%(str(s.absolute().relative_to(pr)))
+        obatp=pr.joinpath(obatname)
         obatp.write_text(sbat1+'\n','utf8')
     # %%
+    
+    os.system(f'cd /d {str(pr)} & start {str(obatp)}')
     # %%
     # %%
     # %%
