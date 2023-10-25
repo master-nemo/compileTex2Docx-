@@ -18,19 +18,29 @@ def getArgs():
     if isVScode:
         args = argparse.Namespace(
             # S=['doc1.tex']
-            S=[r'.\data-pr\doc1.tex']
+            S=[r'.\data-pr\doc1.tex'],
+            batNameTemplate='compile_%s_.bat',
+            docxNameTemplate='%s~out.docx',
+            doNotStart_rez_docx=False,
         )
     else:
+        aparser = argparse.ArgumentParser(description='parse TeX to create pandoc convert bat with citeproc')
         #aparser.add_argument('-m','--IgnoreSzLess',dest='IgnoreSzLess', type=int, default=1024, help='ignore files with size less ... (def 1024)')
         # aparser.add_argument('-i','--OnlyInfo',dest='onlyInfo', action='store_true', default=False, help='do not create links- just report')
         # aparser.add_argument('integers', metavar='N', type=int, nargs='+',help='...')
         aparser.add_argument('S', metavar='TeX_file', type=str, nargs=1,help='tex file to process')
-        # aparser.add_argument('-g', '--gui', dest='gui', action='store_true', default=False, help='gui progress')
-        # aparser.add_argument('infls', metavar='infls', type=str, nargs='*', help='file to view')
+        aparser.add_argument('-b','--batNameTemplate',dest='batNameTemplate', type=str,  default='compile_%s_.bat', help='template of out bat where %s is name of src TeX file (`` for not create)') 
+        aparser.add_argument('-d','--docxNameTemplate',dest='docxNameTemplate', type=str,  default='%s~out.docx', help='template of out DOCX where %s is name of src TeX file') 
+        aparser.add_argument('-q','--doNotStart_rez_docx',dest='doNotStart_rez_docx', action='store_true', default=False, help='do not start result docx')
+        
         args = aparser.parse_args()
+        print(args.integers)
+        
 
     print(args, '      (from', 'predefined debug' if isVScode else 'cli args', ')')
     return isVScode, args
+
+# %%
 
 # %%
 def parseTex_find_bibs(s:Union[str,Path])->list:
@@ -42,8 +52,6 @@ def parseTex_find_bibs(s:Union[str,Path])->list:
     # path for all existed bib soruces
     fndallbib = [p for f in fndallbib if (p:=pr.joinpath(f)).is_file() ]
     return fndallbib
-
-
 # %%
 # %%
 # %%
@@ -69,7 +77,24 @@ if __name__ == "__main__":
     pr=s.parent.absolute()
     fndallbib=parseTex_find_bibs(s)
     bibsrcsstr=' '.join([ f' --bibliography={str(Path(a).absolute().relative_to(pr))}'  for a in fndallbib])
-    print(bibsrcsstr)
-    print(f'pandoc {str(s)} {bibsrcsstr} --citeproc --csl={CSL} -o doc1~out.docx & start doc1~out.docx')
-
+    # %%
+    odocx=args.docxNameTemplate%(str(s.absolute().relative_to(pr.absolute())))
+    # %%
+    sbat1 = f'pandoc {str(s)} {bibsrcsstr} --citeproc '+\
+            f'--csl={CSL} -o {odocx}'+\
+            f'\nstart {odocx}' if not args.doNotStart_rez_docx else ''
+            # f' & start {odocx}' if not args.doNotStart_rez_docx else ''
+            # '--csl={CSL} -o doc1~out.docx & start doc1~out.docx'
+    print(sbat1)
+    # %%
+    if (args.batNameTemplate!=''):
+        obatname=args.batNameTemplate%(str(s.absolute().relative_to(pr.absolute())))
+        obatp=pr.absolute().joinpath(obatname)
+        obatp.write_text(sbat1+'\n','utf8')
+    # %%
+    # %%
+    # %%
+    # %%
+    # %%
+    # %%
     # %%
