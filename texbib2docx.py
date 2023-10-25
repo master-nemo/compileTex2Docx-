@@ -24,6 +24,7 @@ def getArgs():
             docxNameTemplate='%s~out.docx',
             doNotStart_rez_docx=False,
             csl = CSLrel,
+            disableViaODTMode = False,
         )
     else:
         aparser = argparse.ArgumentParser(description='parse TeX to create pandoc convert bat with citeproc')
@@ -35,6 +36,7 @@ def getArgs():
         aparser.add_argument('-d','--docxNameTemplate',dest='docxNameTemplate', type=str,  default='%s~out.docx',  help='template of out DOCX where `%%s` is name of src TeX file') 
         aparser.add_argument('-q','--doNotStart_rez_docx',dest='doNotStart_rez_docx', action='store_true', default=False, help='do not start result docx')
         aparser.add_argument('-s','--csl',dest='csl', type=str, default=CSLrel, help='absolute or relative to THIS SCRIPT pathname of CSL style file')
+        aparser.add_argument('-m','--disableViaODTMode',dest='disableViaODTMode', action='store_true', default=False, help='disable default `convert via ODT` mode')
         args = aparser.parse_args()
 
     print(args, '      (from', 'predefined debug' if isVScode else 'cli args', ')')
@@ -42,7 +44,25 @@ def getArgs():
 
 
 # %%
+# %%
+# "C:\Program Files\LibreOffice\program\soffice.exe"
+# [os.environ[k] for k in ['ProgramFiles','ProgramFiles(x86)']]
 
+def tryfindIn(fn:str,places:List[Path])->Optional[Path]:
+    for p in places:
+        if (r1:=p.joinpath(fn)).is_file(): return r1
+    
+
+tryfindIn('soffice.exe',[Path(os.environ[k]).joinpath(r'LibreOffice\program') for k in ['ProgramFiles','ProgramFiles(x86)']] )
+    
+
+
+# %%
+# (os.environ['path']).split(';')
+
+# %%
+# %%
+# %%
 # %%
 
 # %%
@@ -73,18 +93,28 @@ if __name__ == "__main__":
     # %%
     odocx=args.docxNameTemplate%(str(s.absolute().relative_to(pr)))
     # %%
+    oodt=odocx.split('.')[0]+'.odt' if not args.disableViaODTMode else odocx
+    # %%
     csl=pcsl if (pcsl:=Path(args.csl)).is_absolute() else Path(__file__).parent.joinpath(CSLrel).absolute()
     if not csl.is_file(): raise Exception(f'can`t find CSL in it`s place or specified path (`{csl}`)')
     # %%
+    # ---------------------------------------------------------------------------- #
+    # %%
     sbat1 = f'pandoc {str(s.absolute().relative_to(pr))} {bibsrcsstr} --citeproc '+\
-            f'--csl="{str(csl)}" -o {odocx}'
+            f'--csl="{str(csl)}" -o {oodt}'
+            # f'--csl="{str(csl)}" -o {odocx}'
     print(sbat1)    #print only main convert string in case you want create oun bat by `>` of stdout
+    # %%
+    # soffice.exe --convert-to odt my_document.docx
     # %%
     sbat1 +=f''' ||(
         @echo eccor occured!
         @exit /b 1
         )
     ''' 
+    if not args.disableViaODTMode:
+        sbat1 +=f'\nsoffice.exe --convert-to docx my_document.odt'
+    
     sbat1 +=f'\nstart {odocx}\n' if not args.doNotStart_rez_docx else ''
     
     sbat1 = f'@move {odocx} {odocx}.old.bak \n\n' + sbat1
