@@ -22,7 +22,8 @@ def getArgs():
             S=[r'.\data-pr\doc1.tex'],
             batNameTemplate='compile_%s_.bat',
             docxNameTemplate='%s~out.docx',
-            doNotStart_rez_docx=False,
+            # doNotStart_rez_docx=False,
+            doNotStart_rez_bat=False,
             csl = CSLrel,
             disableViaODTMode = False,
         )
@@ -34,7 +35,8 @@ def getArgs():
         aparser.add_argument('S', metavar='TeX_file', type=str, nargs=1,help='tex file to process')
         aparser.add_argument('-b','--batNameTemplate',dest='batNameTemplate', type=str,  default='compile_%s_.bat', help='template of out bat where `%%s` is name of src TeX file (`` for not create)') 
         aparser.add_argument('-d','--docxNameTemplate',dest='docxNameTemplate', type=str,  default='%s~out.docx',  help='template of out DOCX where `%%s` is name of src TeX file') 
-        aparser.add_argument('-q','--doNotStart_rez_docx',dest='doNotStart_rez_docx', action='store_true', default=False, help='do not start result docx')
+        # aparser.add_argument('-qx','--doNotStart_rez_docx',dest='doNotStart_rez_docx', action='store_true', default=False, help='do not start result docx')
+        aparser.add_argument('-q','--doNotStart_rez_bat',dest='doNotStart_rez_bat', action='store_true', default=False, help='do not start result bat')
         aparser.add_argument('-s','--csl',dest='csl', type=str, default=CSLrel, help='absolute or relative to THIS SCRIPT pathname of CSL style file')
         aparser.add_argument('-m','--disableViaODTMode',dest='disableViaODTMode', action='store_true', default=False, help='disable default `convert via ODT` mode')
         args = aparser.parse_args()
@@ -47,16 +49,6 @@ def getArgs():
 # %%
 # "C:\Program Files\LibreOffice\program\soffice.exe"
 # [os.environ[k] for k in ['ProgramFiles','ProgramFiles(x86)']]
-
-def tryfindIn(fn:str,places:List[Path])->Optional[Path]:
-    for p in places:
-        if (r1:=p.joinpath(fn)).is_file(): return r1
-    
-
-tryfindIn('soffice.exe',[Path(os.environ[k]).joinpath(r'LibreOffice\program') for k in ['ProgramFiles','ProgramFiles(x86)']] )
-    
-
-
 # %%
 # (os.environ['path']).split(';')
 
@@ -105,7 +97,25 @@ if __name__ == "__main__":
             # f'--csl="{str(csl)}" -o {odocx}'
     print(sbat1)    #print only main convert string in case you want create oun bat by `>` of stdout
     # %%
-    # soffice.exe --convert-to odt my_document.docx
+    # ------------------------------- 'soffice.exe' ------------------------------ #
+    sofficefn='soffice.exe'
+    def tryfindIn(fn:str,places:List[Path])->Optional[Path]:
+        for p in places: 
+            if (r1:=p.joinpath(fn)).is_file(): return r1
+        print(f'WARNING: can`t find `{fn}` in def places ({places})',file=sys.stderr)
+        for p in places: 
+            al = list(p.glob(f'**\\{fn}'))
+            print(f'WARNING: found `{fn}` in  ({al[0]})',file=sys.stderr)
+            if len(al)>0: return al[0]
+        
+
+    sofficepath = tryfindIn(sofficefn,[Path(os.environ[k]).joinpath(r'LibreOffice\program') for k in ['ProgramFiles','ProgramFiles(x86)']] )
+    if not sofficepath.is_file():
+        print(f'can`t find `{sofficefn}`. use --disableViaODTMode or apply it youself',file=sys.stderr)
+        sofficepath=sofficefn
+
+    # %%
+    # ------------------------------------ bat ----------------------------------- #
     # %%
     sbat1 +=f''' ||(
         @echo eccor occured!
@@ -113,9 +123,11 @@ if __name__ == "__main__":
         )
     ''' 
     if not args.disableViaODTMode:
-        sbat1 +=f'\nsoffice.exe --convert-to docx my_document.odt'
+        # sbat1 +=f'\n"{sofficepath}" --convert-to docx my_document.odt'
+        # sbat1 +=f'\nstart /WAIT "{sofficepath}" --convert-to docx {odocx}'
+        sbat1 +=f'\n"{sofficepath}" --convert-to docx {oodt}'
     
-    sbat1 +=f'\nstart {odocx}\n' if not args.doNotStart_rez_docx else ''
+    # sbat1 +=f'&& (\nstart {odocx}\n)\n' if not args.doNotStart_rez_docx else ''
     
     sbat1 = f'@move {odocx} {odocx}.old.bak \n\n' + sbat1
     sbat1 +=f'exit /b\n' 
@@ -126,7 +138,7 @@ if __name__ == "__main__":
         obatp=pr.joinpath(obatname)
         obatp.write_text(sbat1+'\n','utf8')
     # %%
-    if not args.doNotStart_rez_docx:
+    if not args.doNotStart_rez_bat:
         os.system(f'cd /d {str(pr)} & start {str(obatp)} ')
     # %%
     

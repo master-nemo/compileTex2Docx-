@@ -13,7 +13,7 @@ https://github.com/Darxor/CSL-GOST/commit/f1f334a9f4eb840322d9fdbb83a7f4ee6cda97
 ### py params:
 ```
 usage: texbib2docx.py [-h] [-b BATNAMETEMPLATE] [-d DOCXNAMETEMPLATE] [-q]
-                      [-s CSL]
+                      [-s CSL] [-m]
                       TeX_file
 
 parse TeX to create pandoc convert bat with citeproc
@@ -29,10 +29,13 @@ optional arguments:
   -d DOCXNAMETEMPLATE, --docxNameTemplate DOCXNAMETEMPLATE
                         template of out DOCX where `%s` is name of src TeX
                         file
-  -q, --doNotStart_rez_docx
-                        do not start result docx
+  -q, --doNotStart_rez_bat
+                        do not start result bat
   -s CSL, --csl CSL     absolute or relative to THIS SCRIPT pathname of CSL
                         style file
+  -m, --disableViaODTMode
+                        disable default `convert via ODT` mode
+
 ```
 
 
