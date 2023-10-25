@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            // "args": ["-h"],
+            // "args": ["data-pr\\doc1.tex"],
+            // "args": ["data-pr\\doc1.tex","-q"],
+            "args": ["data-pr\\doc1.tex",
+            // "-q",
+            "--csl=D:\\!crntWrk\\20231023_tex2w_rsrch_again\\labtex1\\bltx2_gost\\chicago-fullnote-bibliography.csl"],
+            "justMyCode": true
+        }
+    ]
+}

@@ -23,6 +23,7 @@ def getArgs():
             batNameTemplate='compile_%s_.bat',
             docxNameTemplate='%s~out.docx',
             doNotStart_rez_docx=False,
+            csl = CSLrel,
         )
     else:
         aparser = argparse.ArgumentParser(description='parse TeX to create pandoc convert bat with citeproc')
@@ -30,16 +31,17 @@ def getArgs():
         # aparser.add_argument('-i','--OnlyInfo',dest='onlyInfo', action='store_true', default=False, help='do not create links- just report')
         # aparser.add_argument('integers', metavar='N', type=int, nargs='+',help='...')
         aparser.add_argument('S', metavar='TeX_file', type=str, nargs=1,help='tex file to process')
-        aparser.add_argument('-b','--batNameTemplate',dest='batNameTemplate', type=str,  default='compile_%s_.bat', help='template of out bat where %s is name of src TeX file (`` for not create)') 
-        aparser.add_argument('-d','--docxNameTemplate',dest='docxNameTemplate', type=str,  default='%s~out.docx', help='template of out DOCX where %s is name of src TeX file') 
+        aparser.add_argument('-b','--batNameTemplate',dest='batNameTemplate', type=str,  default='compile_%s_.bat', help='template of out bat where `%%s` is name of src TeX file (`` for not create)') 
+        aparser.add_argument('-d','--docxNameTemplate',dest='docxNameTemplate', type=str,  default='%s~out.docx',  help='template of out DOCX where `%%s` is name of src TeX file') 
         aparser.add_argument('-q','--doNotStart_rez_docx',dest='doNotStart_rez_docx', action='store_true', default=False, help='do not start result docx')
-        
+        aparser.add_argument('-s','--csl',dest='csl', type=str, default=CSLrel, help='absolute or relative to THIS SCRIPT pathname of CSL style file')
         args = aparser.parse_args()
-        print(args.integers)
-        
 
     print(args, '      (from', 'predefined debug' if isVScode else 'cli args', ')')
     return isVScode, args
+
+
+# %%
 
 # %%
 
@@ -81,31 +83,30 @@ if __name__ == "__main__":
     # %%
     odocx=args.docxNameTemplate%(str(s.absolute().relative_to(pr)))
     # %%
-    Path(__file__).parent
-    # %%
-    csl=Path(__file__).parent.joinpath(CSLrel).absolute()
-    
-    csl.is_file()
-    # %%
-    Path()
-    # %%
-    CSLrel
+    csl=pcsl if (pcsl:=Path(args.csl)).is_absolute() else Path(__file__).parent.joinpath(CSLrel).absolute()
+    if not csl.is_file(): raise Exception(f'can`t find CSL in it`s place or specified path (`{csl}`)')
     # %%
     sbat1 = f'pandoc {str(s.absolute().relative_to(pr))} {bibsrcsstr} --citeproc '+\
             f'--csl="{str(csl)}" -o {odocx}'
     print(sbat1)    #print only main convert string in case you want create oun bat by `>` of stdout
-    sbat1 +=f'\nstart {odocx}' if not args.doNotStart_rez_docx else ''
+    # %%
+    sbat1 +=f''' ||(
+        @echo eccor occured!
+        @exit /b 1
+        )
+    ''' 
+    sbat1 +=f'\nstart {odocx}\n' if not args.doNotStart_rez_docx else ''
+    
+    sbat1 = f'@move {odocx} {odocx}.old.bak \n\n' + sbat1
+    sbat1 +=f'exit /b\n' 
+    sbat1
     # %%
     if (args.batNameTemplate!=''):
         obatname=args.batNameTemplate%(str(s.absolute().relative_to(pr)))
         obatp=pr.joinpath(obatname)
         obatp.write_text(sbat1+'\n','utf8')
     # %%
+    if not args.doNotStart_rez_docx:
+        os.system(f'cd /d {str(pr)} & start {str(obatp)} ')
+    # %%
     
-    os.system(f'cd /d {str(pr)} & start {str(obatp)}')
-    # %%
-    # %%
-    # %%
-    # %%
-    # %%
-    # %%
