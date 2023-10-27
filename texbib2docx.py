@@ -130,7 +130,7 @@ if __name__ == "__main__":
     # sbat1 +=f'&& (\nstart {odocx}\n)\n' if not args.doNotStart_rez_docx else ''
     
     sbat1 = f'@move {odocx} {odocx}.old.bak \n\n' + sbat1
-    sbat1 +=f'exit /b\n' 
+    sbat1 +=f'\n\nexit /b\n' 
     sbat1
     # %%
     if (args.batNameTemplate!=''):
@@ -140,5 +140,6 @@ if __name__ == "__main__":
     # %%
     if not args.doNotStart_rez_bat:
         os.system(f'cd /d {str(pr)} & start {str(obatp)} ')
+    # %%
     # %%
     
